@@ -1,1 +1,135 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BlockChain Viewer</title>
+</head>
+<body>
+    <h1>Blockchain Viewer</h1>
+<div>
+    <input type="text" id="sender" name="sender" placeholder="보내는 사람">
+    <input type="text" id="receiver" name="receiver" placeholder="받는 사람">
+    <input type="number" id="amount" name="amount" placeholder="금액">
+    <button id="addTransactionButton">송금하기</button>
+</div>
+<div>
+    <input type="text" id="mineId" placeholder="채굴을 위한 거래 ID 입력">
+    <button id="mineButton">채굴</button>
+</div>
+<div>
+    <input type="text" id="searchId" placeholder="블록 검색을 위한 거래 ID 입력">
+    <button id="getBlockButton">검색</button>
+</div>
+<div>
+<button id="getAllBlocksButton">모든 블록 확인하기</button>
+</div>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script>
 
+        // 거래 내역 추가
+        function addTransaction() {
+            var sender = $('#sender').val();
+            var receiver = $('#receiver').val();
+            var amount = $('#amount').val();
+
+            //입력 값이 없는 경우 메시지 표시
+            if (!sender.trim() || !receiver.trim() || !amount.trim()) {
+                var message = '';
+                if (!sender.trim()) {
+                    message += '보내는 사람 ';
+                }
+                if (!receiver.trim()) {
+                    message += '받는 사람 ';
+                }
+                if (!amount.trim()) {
+                    message += '금액 ';
+                }
+                alert(message + '칸을 채워주세요.');
+                return;
+            }
+
+            // 거래내역 데이터 전송
+            var transactionData = {sender: sender, receiver: receiver, amount: amount};
+            $.ajax({
+                url: '/add_transaction',
+                type: 'POST',
+                contentType: 'application/json',
+                data: JSON.stringify(transactionData),
+                success: function(data) {
+                    alert("거래 완료, 거래 ID: " + data.transaction_id);
+                    $('#sender').val(''); // 해당 입력 칸 비우기              
+                    $('#receiver').val('');
+                    $('#amount').val('');
+                },
+                error: function(error) {
+                    alert('오류 발생');
+                    console.error('Error:', error);
+                }
+            });
+        }
+
+        // 거래내역 ID로 블록 채굴
+        function mine() {
+            var mineId = $('#mineId').val();
+                // 입력 값이 없는 경우 메시지 표시
+                if (!mineId.trim()) {
+                alert('채굴을 위한 거래 ID를 입력해주세요.');
+                return;
+                }
+
+            var url = "/mine_transaction/" + mineId;
+            $.ajax({
+                url: url,
+                type: 'GET',
+                success: function(data) {
+                    alert("채굴 완료")
+                    console.log("New block mined:", data);
+                    $('#mineId').val(''); // 해당 입력 칸 비우기
+                },
+                error: function(error) {
+                    alert('해당 거래 ID는 존재하지 않거나 틀린 값입니다.'); 
+                    console.error('Error:', error);
+                    $('#mineId').val(''); // 해당 입력 칸 비우기
+                }
+            });
+        }
+
+        // 거래내역 ID로 블록 검색
+        function getBlock() {
+            var searchId = $('#searchId').val();
+            // 입력 값이 없는 경우 메시지 표시
+            if (!searchId.trim()) { 
+                alert('블록 검색을 위한 거래 ID를 입력해주세요.')
+                return;
+            }
+
+            var url = "/block_by_transaction/" + searchId; 
+            $.ajax({
+                url: url,
+                type: 'GET',
+                success: function(data) {
+                    window.open(url, '_blank');
+                    $('#searchId').val(''); // 해당 입력 칸 비우기
+                },
+                error: function(error) {
+                    alert('해당 거래 ID는 존재하지 않거나 틀린 값입니다.');
+                    console.error('Error:', error);
+                    $('#searchId').val(''); // 해당 입력 칸 비우기
+                }
+            });
+        }
+
+        // 버튼
+        $(document).ready(function() {
+            $('#addTransactionButton').click(addTransaction);
+            $('#mineButton').click(mine);
+            $('#getBlockButton').click(getBlock);
+            $('#getAllBlocksButton').click(function() {
+                window.location.href = "/all_blocks";
+            });
+        });
+
+    </script>
+</body>
+</html>
