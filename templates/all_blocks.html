@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>블록 체인 내 모든 블록</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f2f2f2;
+            padding: 20px;
+        }
+        h1 {
+            text-align: center;
+            color: #333333;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            background-color: #ffffff;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            border-radius: 8px;
+            overflow: hidden;
+            margin-bottom: 20px;
+        }
+        th, td {
+            padding: 12px 15px;
+            text-align: center;
+            border-bottom: 1px solid #dddddd;
+            border-right: 1px solid #dddddd;
+        }
+        th {
+            background-color: #f8f8f8;
+            font-weight: bold;
+            color: #333333;
+            text-transform: uppercase;
+        }
+        tbody tr:hover {
+            background-color: #f2f2f2;
+        }
+        .transaction-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        .transaction-table th, .transaction-table td {
+            padding: 8px 10px;
+            border-bottom: 1px solid #dddddd;
+        }
+        .transaction-table th {
+            background-color: #f2f2f2;
+        }
+        .block-details {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        .block-details th, .block-details td {
+            padding: 8px 10px;
+            border-bottom: 1px solid #dddddd;
+            text-align: center; 
+        }
+        .block-details th {
+            background-color: #f2f2f2;
+            
+        }
+        .block-details th:first-child {
+            width: 25%;
+        }
+        .block-details th:nth-child(2), .block-details td:nth-child(2), 
+        .block-details th:nth-child(3), .block-details td:nth-child(3), 
+        .block-details th:nth-child(4), .block-details td:nth-child(4) {
+            width: 25%;
+        }
+        .hash-table {
+            border-collapse: collapse;
+            width: 100%;
+        }
+        .hash-table th, .hash-table td {
+            padding: 2px;
+            text-align: center;
+            border: 1px solid #dddddd;
+        }
+    </style>
+</head>
+<body>
+    <h1>BlockChain Viewer</h1>
+    <table>
+        <thead>
+            <tr>
+                <th>블록</th>
+                <th colspan="4">블록 헤더</th>
+                <th>블록 바디</th>
+            </tr>
+            <tr>
+                <th>인덱스</th>
+                <th>타임스탬프</th>
+                <th>해시</th>
+                <th>nonce</th>
+                <th>난이도</th>
+                <th>거래 내용</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for block in blocks %}
+            <tr>
+                <td>{{ block.index }}</td>
+                <td>{{ block.timestamp }}</td>
+                <td>
+                    <table class="hash-table">
+                        <tr>
+                            <th>이전 해시</th>
+                        </tr>
+                        <tr>
+                            <td>{{ block.previous_hash }}</td>
+                        </tr>
+                        <tr>
+                            <th>해시</th>
+                        </tr>
+                        <tr>
+                            <td>{{ block.hash }}</td>
+                        </tr>
+                    </table>
+                </td>
+                <td>{{block.nonce}}  </td>
+                <td>{{block.difficulty}}</td>
+                <td>
+                    {% if block.index == 0 %}
+                        No transactions
+                    {% else %}
+                        <table class="transaction-table">
+                            <thead>
+                                <tr>
+                                    <th>거래 ID</th>
+                                    <th>송신자</th>
+                                    <th>수신자</th>
+                                    <th>금액</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for transaction in block.transactions %}
+                                <tr>
+                                    <td>{{ transaction.transaction_id }}</td>
+                                    <td>{{ transaction.sender }}</td>
+                                    <td>{{ transaction.receiver }}</td>
+                                    <td>{{ transaction.amount }}</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    {% endif %}
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</body>
+</html>
